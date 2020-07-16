@@ -177,13 +177,12 @@ d <- as_tibble(disp)%>%group_by(metapop)%>%summarise(end = sum(End), start = mea
 data3 <- merge(data2, d[c(1,4)], all.x = TRUE)
 
 #model spread as dependent on reproductive success
-ffLH <- brmsformula(edge  ~ a*day + b, a ~ 0 + Intercept + repr, b~ 0 + Intercept + repr + (1+day|metapop), nl = TRUE)
-get_prior(ffLH, data = data2)
+ffLH <- brmsformula(edge  ~ 0 + Intercept + repr*day + (1+day|metapop))
+get_prior(ffLH, data = data3)
 fLH <- brm(data = data3, family = 'gaussian',
            formula = ffLH,
-           prior = c(prior(normal(0,4), class = b, nlpar = a),
-                     prior(normal(0,4), class = b, nlpar = b),
-                     prior(cauchy(0,2), class = sd, nlpar = b),
+           prior = c(prior(normal(0,4), class = b),
+                     prior(cauchy(0,2), class = sd),
                      prior(lkj(2), class = cor)),
            iter = 5000, warmup = 2000, chains = 2, cores = 2)
 fLH$fit
@@ -193,19 +192,19 @@ LHmcmc <- as.matrix(fLH)
 LHdata <- droplevels(data3[!is.na(data3$repr),])
 
 LHsd.d <- sd(LHdata$day)
-LHsd.day <- abs(LHmcmc[,1])*sd.d
+LHsd.day <- abs(LHmcmc[,3])*sd.d
 
 LHsd.r <- sd(LHdata$repr)
-LHsd.repr <- abs(LHmcmc[,4])*LHsd.r
+LHsd.repr <- abs(LHmcmc[,2])*LHsd.r
 
 LHsd.rd <- sd(LHdata$repr*LHdata$day)
-LHsd.reprday <- abs(LHmcmc[,2])*LHsd.rd
+LHsd.reprday <- abs(LHmcmc[,4])*LHsd.rd
 
 LHdata.meta <- sapply(LHdata$metapop, function(x) levels(LHdata$metapop) == x)
-LHsd.metapop <- apply(LHmcmc[, 9:22] %*% LHdata.meta, 1, sd)
+LHsd.metapop <- apply(LHmcmc[, 9:21] %*% LHdata.meta, 1, sd)
 
 LHdata.metadayp <- LHdata.meta*LHdata$day
-LHsd.metaday <- apply(mcmc[, 23:36] %*% LHdata.metadayp, 1, sd)
+LHsd.metaday <- apply(mcmc[, 22:34] %*% LHdata.metadayp, 1, sd)
 
 LHsd.resid <- apply(residuals(fLH, summary = FALSE), 1, sd)
 
@@ -254,13 +253,13 @@ postLH_ <- fitted(fLH, newdata = nLH, nlpar = "a", re_formula = NA, probs = c(0.
 
 
 #model population spread as dependent on dispersal capacity
-ffd <- brmsformula(edge  ~ a*day + b, a ~ 0 + Intercept + disp, b~ 0 + Intercept + disp + (1+day|metapop), nl = TRUE)
+ffd <- brmsformula(edge  ~ 0 + Intercept + disp*day + (1+day|metapop))
 get_prior(ffd, data = data3)
 fd <- brm(data = data3, family = 'gaussian',
           formula = ffd,
-          prior = c(prior(normal(0,4), class = b, nlpar = a),
-                    prior(normal(0,4), class = b, nlpar = b),
-                    prior(cauchy(0,2), class = sd, nlpar = b)),
+          prior = c(prior(normal(0,4), class = b),
+                    prior(cauchy(0,2), class = sd),
+                    prior(lkj(2), class = cor)),
           iter = 5000, warmup = 2000, chains = 2, cores = 2)
 fd$fit
 
@@ -272,13 +271,13 @@ dmcmc <- as.matrix(fd)
 ddata <- droplevels(data3[!is.na(data3$disp),])
 
 dsd.d <- sd(ddata$day)
-dsd.day <- abs(dmcmc[,1])*sd.d
+dsd.day <- abs(dmcmc[,3])*sd.d
 
 dsd.di <- sd(ddata$disp)
-dsd.disp <- abs(dmcmc[,4])*dsd.di
+dsd.disp <- abs(dmcmc[,2])*dsd.di
 
 dsd.dd <- sd(ddata$disp*ddata$day)
-dsd.dispday <- abs(dmcmc[,2])*dsd.dd
+dsd.dispday <- abs(dmcmc[,4])*dsd.dd
 
 ddata.meta <- sapply(ddata$metapop, function(x) levels(ddata$metapop) == x)
 dsd.metapop <- apply(dmcmc[, 9:21] %*% ddata.meta, 1, sd)
