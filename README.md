@@ -12,6 +12,8 @@ Data files and scripts for the paper 'Evolutionary history determines range expa
    
    tidyverse 0.21
    
+   ggplot2 3.3.0
+   
    brms 2.12.0
    
    gridExtra 2.3
