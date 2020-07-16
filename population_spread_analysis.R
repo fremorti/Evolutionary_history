@@ -67,7 +67,7 @@ sd.resid <- apply(residuals(fedge, summary = FALSE), 1, sd)
 sd.all <- cbind(sd.b, sd.day, sd.bday, sd.metapop, sd.metaday, sd.resid)%>%as_tibble()%>%rename('con' = sd.b, 'day' = 'sd.day', 'con:day' = 'sd.bday', 'mesoc' = 'sd.metapop', 'mesoc:day' = 'sd.metaday', 'resid' = 'sd.resid')
 summary(sd.all)
 
-#plot all sources of variation in the model
+#plot all sources of variation in the model (fig 3)
 sd.all_ <- sd.all%>%pivot_longer(cols = colnames(.))
 ggplot(sd.all_, aes(x = name, y = value))+
   geom_violin(draw_quantiles = c(0.09, 0.5, 0.91), scale = 'width', color = 'grey40', aes(fill = name))+
@@ -89,7 +89,7 @@ sd.all$metaday_ <- sd.metaday/sd.resid
 sd.all$'b:day_metapop:day' <- sd.bday/sd.metaday
 sd.all$'b_metapop' <- sd.metapop/sd.b
 
-#plot proportions involving slopes of treatment and mesocosm
+#plot proportions involving slopes of treatment and mesocosm (fig 4)
 ggplot(sd.all[c(9,11,12)]%>%select('b:day_metapop:day' = 'b:day_metapop:day', 'b:day_resid' = bday_, 'metapop:day_resid' = metaday_)%>%pivot_longer(cols = colnames(.)), aes(name, value))+
   geom_violin(draw_quantiles = c(0.09, 0.5, 0.91), scale = 'width', fill = 'bisque3', color = 'bisque4')+
   geom_hline(yintercept = 1, linetype = 'dashed', size = 1, color = 'bisque4')+
@@ -157,7 +157,7 @@ postf1 <- fitted(fedge, newdata = nde, re_formula = NA, probs = c(0.09, 0.91))%>
     ggtitle('connectedness effect on spread')+
     theme(legend.position='top'))
 
-
+#fig 5
 grid.arrange(grobs = list(e3, fedge1_splot, fedge1_splot_d), widths = c(1,1,2), layout_matrix = rbind(c(1,1, 2),c(1,1, 3)))
 
 
@@ -211,7 +211,7 @@ LHsd.resid <- apply(residuals(fLH, summary = FALSE), 1, sd)
 LHsd.all <- cbind(LHsd.day, LHsd.repr, LHsd.reprday, sd.metapop, sd.metaday, sd.resid)%>%as_tibble()%>%rename('day' = 'LHsd.day', 'repr' = LHsd.repr, 'repr:day' = LHsd.reprday, 'metapop' = 'sd.metapop', 'metapop:day' = 'sd.metaday', 'resid' = 'sd.resid')
 summary(LHsd.all)
 
-#plot sources of variation
+#plot sources of variation (fig 6)
 LHsd.all_ <- LHsd.all%>%pivot_longer(cols = colnames(.))
 LHsd.all_$name <- factor(LHsd.all_$name, levels = c('day', 'repr', 'repr:day', 'metapop', 'metapop:day', 'resid'))
 ggplot(LHsd.all_, aes(x = name, y = value))+
@@ -242,7 +242,7 @@ postLH <- fitted(fLH, newdata = nLH, nlpar = "b", re_formula = NA, probs = c(0.0
 
 postLH_ <- fitted(fLH, newdata = nLH, nlpar = "a", re_formula = NA, probs = c(0.09, 0.91))%>%
   as_tibble()%>% bind_cols(nLH)%>%filter(day == 1)
-#plot estimated slopes
+#plot estimated slopes (fig 7)
 (LH1_ <- ggplot(postLH_, aes(x = repr, y = Estimate))+
   geom_line(size = 1.25)+
   geom_ribbon(aes(ymin = Q9, ymax = Q91), fill = "black", alpha = 0.1) +
@@ -290,7 +290,7 @@ dsd.resid <- apply(residuals(fd, summary = FALSE), 1, sd)
 dsd.all <- cbind(dsd.day, dsd.disp, dsd.dispday, sd.metapop, sd.metaday, sd.resid)%>%as_tibble()%>%rename('day' = 'dsd.day', 'disp' = dsd.disp, 'disp:day' = dsd.dispday, 'metapop' = 'sd.metapop', 'metapop:day' = 'sd.metaday', 'resid' = 'sd.resid')
 summary(dsd.all)
 
-#plot sources of variation in the model
+#plot sources of variation in the model (fig 8)
 dsd.all_ <- dsd.all%>%pivot_longer(cols = colnames(.))
 ggplot(dsd.all_, aes(x = name, y = value))+
   geom_violin(draw_quantiles = c(0.09, 0.5, 0.91), scale = 'width', aes(fill = name))+
@@ -318,7 +318,7 @@ postd_ <- fitted(fd, newdata = nd, nlpar = "a", re_formula = NA, probs = c(0.09,
   theme_minimal()+
   theme(legend.position = "none", text = element_text(size = 15))
 
-#plot estimated slopes
+#plot estimated slopes (fig 9)
 (d1_ <- ggplot(postd_, aes(x = disp, y = Estimate))+
   geom_line(size = 1.25)+
   geom_ribbon(aes(ymin = Q9, ymax = Q91), fill = "black", alpha = 0.1) +
