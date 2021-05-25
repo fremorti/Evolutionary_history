@@ -1,6 +1,6 @@
 # Evolutionary_history
 
-Data files and scripts for the paper 'Evolutionary history determines range expansion speed in a stochastic, rather than in a deterministic way'
+Data files and scripts for the paper 'Evolutionary history determines population spread rate in a stochastic rather than deterministic way'
 * **data_mesocosms.csv** contains the data about the population spread tests
 * **LHtraits.txt** contains the data about the measured reproductive success of the mites
 * **dispersal.txt** contains the data about the measured dispersal propensity of the mites
